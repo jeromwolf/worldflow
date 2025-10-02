@@ -1,27 +1,36 @@
 """
-File Storage Service - AWS S3 integration
+File Storage Service - Local filesystem with Railway volume support
+Uses local storage for development and Railway persistent volume for production
 """
 import os
 import uuid
 from typing import Optional
 from datetime import datetime
-import boto3
-from botocore.exceptions import ClientError
+from pathlib import Path
 from loguru import logger
-from core.config import settings
 
 
 class StorageService:
-    """AWS S3 file storage service"""
+    """
+    Filesystem storage service
+    - Development: ./storage/
+    - Railway: /data/ (persistent volume)
+    """
 
     def __init__(self):
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_REGION
-        )
-        self.bucket_name = settings.S3_BUCKET_NAME
+        # Railway sets RAILWAY_ENVIRONMENT variable
+        is_railway = os.getenv("RAILWAY_ENVIRONMENT") is not None
+
+        if is_railway:
+            # Railway persistent volume mounted at /data
+            self.base_path = Path("/data")
+            logger.info("Using Railway persistent storage at /data")
+        else:
+            # Local development
+            self.base_path = Path("./storage")
+            logger.info("Using local storage at ./storage")
+
+        self.base_path.mkdir(parents=True, exist_ok=True)
 
     def upload_file(
         self,
@@ -31,137 +40,101 @@ class StorageService:
         folder: str = "uploads"
     ) -> str:
         """
-        Upload file to S3
+        Upload file to local storage
 
         Args:
             file_content: File bytes
             filename: Original filename
             content_type: MIME type
-            folder: S3 folder path
+            folder: Folder path
 
         Returns:
-            S3 URL of uploaded file
+            Local file path
         """
         try:
             # Generate unique filename
             timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
             unique_id = str(uuid.uuid4())[:8]
             file_extension = os.path.splitext(filename)[1]
-            s3_key = f"{folder}/{timestamp}_{unique_id}{file_extension}"
+            relative_path = f"{folder}/{timestamp}_{unique_id}{file_extension}"
 
-            # Upload to S3
-            self.s3_client.put_object(
-                Bucket=self.bucket_name,
-                Key=s3_key,
-                Body=file_content,
-                ContentType=content_type,
-                Metadata={
-                    'original_filename': filename
-                }
-            )
+            # Create folder if not exists
+            file_path = self.base_path / relative_path
+            file_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # Generate URL
-            file_url = f"https://{self.bucket_name}.s3.{settings.AWS_REGION}.amazonaws.com/{s3_key}"
+            # Write file
+            with open(file_path, 'wb') as f:
+                f.write(file_content)
 
-            logger.info(f"Uploaded file to S3: {s3_key}")
-            return file_url
+            logger.info(f"Uploaded file to local storage: {relative_path}")
+            return str(relative_path)
 
-        except ClientError as e:
-            logger.error(f"Failed to upload file to S3: {str(e)}")
+        except Exception as e:
+            logger.error(f"Failed to upload file: {str(e)}")
             raise ValueError(f"File upload failed: {str(e)}")
 
-    def download_file(self, s3_url: str) -> bytes:
+    def download_file(self, file_path: str) -> bytes:
         """
-        Download file from S3
+        Download file from local storage
 
         Args:
-            s3_url: Full S3 URL
+            file_path: Relative file path
 
         Returns:
             File content as bytes
         """
         try:
-            # Extract S3 key from URL
-            s3_key = self._extract_s3_key(s3_url)
+            full_path = self.base_path / file_path
 
-            # Download from S3
-            response = self.s3_client.get_object(
-                Bucket=self.bucket_name,
-                Key=s3_key
-            )
+            if not full_path.exists():
+                raise ValueError(f"File not found: {file_path}")
 
-            file_content = response['Body'].read()
-            logger.info(f"Downloaded file from S3: {s3_key}")
+            with open(full_path, 'rb') as f:
+                file_content = f.read()
+
+            logger.info(f"Downloaded file from local storage: {file_path}")
             return file_content
 
-        except ClientError as e:
-            logger.error(f"Failed to download file from S3: {str(e)}")
+        except Exception as e:
+            logger.error(f"Failed to download file: {str(e)}")
             raise ValueError(f"File download failed: {str(e)}")
 
-    def delete_file(self, s3_url: str) -> bool:
+    def delete_file(self, file_path: str) -> bool:
         """
-        Delete file from S3
+        Delete file from local storage
 
         Args:
-            s3_url: Full S3 URL
+            file_path: Relative file path
 
         Returns:
             True if successful
         """
         try:
-            # Extract S3 key from URL
-            s3_key = self._extract_s3_key(s3_url)
+            full_path = self.base_path / file_path
 
-            # Delete from S3
-            self.s3_client.delete_object(
-                Bucket=self.bucket_name,
-                Key=s3_key
-            )
+            if full_path.exists():
+                full_path.unlink()
+                logger.info(f"Deleted file from local storage: {file_path}")
+                return True
+            else:
+                logger.warning(f"File not found for deletion: {file_path}")
+                return False
 
-            logger.info(f"Deleted file from S3: {s3_key}")
-            return True
-
-        except ClientError as e:
-            logger.error(f"Failed to delete file from S3: {str(e)}")
+        except Exception as e:
+            logger.error(f"Failed to delete file: {str(e)}")
             return False
 
-    def get_presigned_url(self, s3_url: str, expiration: int = 3600) -> str:
+    def get_file_url(self, file_path: str) -> str:
         """
-        Generate presigned URL for temporary access
+        Get file URL (for local development, returns file path)
 
         Args:
-            s3_url: Full S3 URL
-            expiration: URL expiration time in seconds (default 1 hour)
+            file_path: Relative file path
 
         Returns:
-            Presigned URL
+            File path (can be used to download via API)
         """
-        try:
-            s3_key = self._extract_s3_key(s3_url)
-
-            presigned_url = self.s3_client.generate_presigned_url(
-                'get_object',
-                Params={
-                    'Bucket': self.bucket_name,
-                    'Key': s3_key
-                },
-                ExpiresIn=expiration
-            )
-
-            return presigned_url
-
-        except ClientError as e:
-            logger.error(f"Failed to generate presigned URL: {str(e)}")
-            raise ValueError(f"Presigned URL generation failed: {str(e)}")
-
-    def _extract_s3_key(self, s3_url: str) -> str:
-        """Extract S3 key from full URL"""
-        # URL format: https://bucket.s3.region.amazonaws.com/key
-        parts = s3_url.split(f"{self.bucket_name}.s3.{settings.AWS_REGION}.amazonaws.com/")
-        if len(parts) > 1:
-            return parts[1]
-        else:
-            raise ValueError(f"Invalid S3 URL format: {s3_url}")
+        return f"/api/files/{file_path}"
 
 
 # Singleton instance
