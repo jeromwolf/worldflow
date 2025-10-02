@@ -8,6 +8,7 @@ import uvicorn
 
 from api.auth import router as auth_router
 from api.projects import router as projects_router
+from api.translation import router as translation_router
 
 # App initialization
 app = FastAPI(
@@ -30,6 +31,7 @@ app.add_middleware(
 # Register API Routers
 app.include_router(auth_router)
 app.include_router(projects_router)
+app.include_router(translation_router)
 
 
 @app.get("/")
