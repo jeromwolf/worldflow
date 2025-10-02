@@ -9,9 +9,9 @@
 ## 📊 전체 진행 현황
 
 ### Phase 1: MVP 개발 (12주)
-- **Week 1-2**: 기반 구축 ⏳
-- **Week 3-4**: PDF 파싱 엔진 📅
-- **Week 5-6**: AI 번역 엔진 📅
+- **Week 1-2**: 기반 구축 ✅
+- **Week 3-4**: PDF 파싱 엔진 ✅
+- **Week 5-6**: AI 번역 엔진 ✅
 - **Week 7-8**: 편집 및 PDF 생성 📅
 - **Week 9-10**: 결제 시스템 📅
 - **Week 11-12**: 테스트 및 출시 📅
@@ -23,43 +23,76 @@
 
 ## 🎯 Phase 1: MVP 개발 (12주)
 
-### Week 1-2: 기반 구축
+### Week 1-2: 기반 구축 ✅
 **목표**: 개발 환경 설정 및 인증 시스템 구현
 
 #### ✅ 완료된 작업
-- [ ] 프로젝트 기획 (PRD, 벤치마킹)
-- [ ] 개발 가이드 작성 (claude.md)
-
-#### 🔄 진행 중인 작업
-- [ ] 없음
-
-#### 📅 예정된 작업
-- [ ] **Task 1.1**: 프로젝트 환경 설정 → [TASK_1_1.md](./tasks/TASK_1_1.md)
-- [ ] **Task 1.2**: 데이터베이스 설계 및 구축 → [TASK_1_2.md](./tasks/TASK_1_2.md)
-- [ ] **Task 1.3**: 사용자 인증 시스템 → [TASK_1_3.md](./tasks/TASK_1_3.md)
-- [ ] **Task 1.4**: 프론트엔드 기본 레이아웃 → [TASK_1_4.md](./tasks/TASK_1_4.md)
+- [x] 프로젝트 기획 (PRD, 벤치마킹)
+- [x] 개발 가이드 작성 (claude.md)
+- [x] **Task 1.1**: 프로젝트 환경 설정
+  - Git 초기화, 프로젝트 구조 생성
+  - Docker & docker-compose 설정
+  - requirements.txt, package.json
+  - Railway 배포 설정
+- [x] **Task 1.2**: 데이터베이스 설계 및 구축
+  - PostgreSQL + SQLAlchemy 설정
+  - User, Project, Glossary, UsageLog, Payment 모델
+  - Alembic 마이그레이션 설정
+- [x] **Task 1.3**: 사용자 인증 시스템
+  - JWT 기반 인증 (bcrypt 암호화)
+  - 회원가입, 로그인, 토큰 갱신 API
+  - 인증 의존성 (get_current_user)
+- [x] **Task 1.4**: 프론트엔드 기본 레이아웃
+  - React 18 + TypeScript + Vite
+  - TailwindCSS 설정
+  - Header, Footer, Layout 컴포넌트
+  - 랜딩 페이지 (Home.tsx)
 
 ---
 
-### Week 3-4: PDF 파싱 엔진
+### Week 3-4: PDF 파싱 엔진 ✅
 **목표**: PDF를 Markdown으로 변환하는 파싱 엔진 개발
 
+#### ✅ 완료된 작업
+- [x] **Task 2.1**: PDF 파싱 엔진 개발
+  - ODIN-AI 검증된 멀티 파서 전략
+  - pdfplumber → PyMuPDF → PyPDF2 자동 폴백
+  - 텍스트, 테이블, 메타데이터 추출
+  - Markdown 변환 (테이블 포함)
+- [x] **Task 2.2**: 파일 저장소 연동
+  - Railway Persistent Volume 사용
+  - 로컬: ./storage/, Railway: /data/
+  - 자동 환경 감지 (RAILWAY_ENVIRONMENT)
+- [x] **Task 2.3**: 파일 업로드 API
+  - POST /api/projects/upload
+  - 파일 검증 (PDF, 크기, 페이지 제한)
+  - 프로젝트 CRUD API (목록, 상세, 수정, 삭제)
+
 #### 📅 예정된 작업
-- [ ] **Task 2.1**: PDF 파싱 엔진 개발 → [TASK_2_1.md](./tasks/TASK_2_1.md)
-- [ ] **Task 2.2**: 파일 저장소 (S3) 연동 → [TASK_2_2.md](./tasks/TASK_2_2.md)
-- [ ] **Task 2.3**: 파일 업로드 API → [TASK_2_3.md](./tasks/TASK_2_3.md)
-- [ ] **Task 2.4**: 대시보드 UI 개발 → [TASK_2_4.md](./tasks/TASK_2_4.md)
+- [ ] **Task 2.4**: 대시보드 UI 개발 (프론트엔드)
 
 ---
 
-### Week 5-6: AI 번역 엔진
+### Week 5-6: AI 번역 엔진 ✅
 **목표**: GPT-4/Claude를 활용한 AI 번역 시스템 구축
 
+#### ✅ 완료된 작업
+- [x] **Task 3.1**: AI 번역 API 통합
+  - OpenAI GPT-4 & Anthropic Claude 지원
+  - translate_text() - 단일 텍스트 번역
+  - translate_markdown() - 청크 기반 문서 번역
+  - 문맥 보존, 용어집 지원
+- [x] **Task 3.2**: 백그라운드 작업 (FastAPI BackgroundTasks)
+  - 비동기 번역 처리
+  - 상태 업데이트 (translating → completed/failed)
+  - TODO: Celery로 마이그레이션 예정
+- [x] **Task 3.3**: 번역 진행 상태 추적
+  - POST /api/translation/projects/{id}/translate
+  - GET /api/translation/projects/{id}/status
+  - 진행률 추적 (0% → 100%)
+
 #### 📅 예정된 작업
-- [ ] **Task 3.1**: AI 번역 API 통합 → [TASK_3_1.md](./tasks/TASK_3_1.md)
-- [ ] **Task 3.2**: 백그라운드 작업 큐 (Celery) → [TASK_3_2.md](./tasks/TASK_3_2.md)
-- [ ] **Task 3.3**: 번역 진행 상태 추적 → [TASK_3_3.md](./tasks/TASK_3_3.md)
-- [ ] **Task 3.4**: 번역 UI 개발 → [TASK_3_4.md](./tasks/TASK_3_4.md)
+- [ ] **Task 3.4**: 번역 UI 개발 (프론트엔드)
 
 ---
 
@@ -162,15 +195,28 @@ _없음_
 
 ## 📊 주간 진행 리포트
 
-### Week 0 (2025-10-02 ~ 2025-10-08)
+### Week 0 (2025-10-02)
 **완료된 작업**:
 - [x] PRD 작성
 - [x] 벤치마킹 분석
-- [x] 개발 가이드 작성 (claude.md)
+- [x] 개발 가이드 작성 (claude.md, REUSABLE_PATTERNS.md)
 - [x] 태스크 관리 문서 생성
+- [x] **Week 1-2 완료**: 기반 구축
+  - 프로젝트 환경 설정 (Docker, Railway)
+  - 데이터베이스 모델 (PostgreSQL + SQLAlchemy)
+  - 사용자 인증 시스템 (JWT)
+  - 프론트엔드 레이아웃 (React + TailwindCSS)
+- [x] **Week 3-4 완료**: PDF 파싱 엔진
+  - 멀티 파서 전략 (pdfplumber/PyMuPDF/PyPDF2)
+  - Railway 볼륨 스토리지
+  - 파일 업로드 & 프로젝트 API
+- [x] **Week 5-6 완료**: AI 번역 엔진
+  - OpenAI/Anthropic 번역 서비스
+  - 백그라운드 작업 처리
+  - 번역 상태 추적 API
 
-**다음 주 계획**:
-- [ ] Task 1.1: 프로젝트 환경 설정 시작
+**다음 계획**:
+- [ ] Week 7-8: Markdown 편집기 및 PDF 생성
 
 ---
 
