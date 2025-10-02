@@ -32,9 +32,8 @@ AI 기반 PDF 문서 번역 플랫폼 (한글 ↔ 영어)
 
 ### 인프라
 - Docker + Docker Compose
-- Railway (배포)
-- AWS S3 (파일 저장)
-- Stripe (결제)
+- Railway (배포 + Persistent Volume)
+- Stripe (결제 - Phase 2)
 
 ## 🚀 빠른 시작
 
@@ -178,19 +177,25 @@ railway up
 
 ## 📊 개발 진행 상황
 
-- [x] 프로젝트 기획 (PRD, 벤치마킹)
-- [x] UI/UX 설계 (듀얼 모드 전략)
-- [x] 개발 환경 설정
-- [ ] 데이터베이스 설계
-- [ ] 사용자 인증 시스템
-- [ ] PDF 파싱 엔진 (ODIN-AI 패턴)
-- [ ] AI 번역 엔진
-- [ ] 편집 인터페이스
-- [ ] PDF 생성 엔진
-- [ ] 결제 시스템
-- [ ] 배포
+**MVP 핵심 기능: 85% 완료**
 
-상세 진행 상황: [TASKS.md](./TASKS.md)
+- [x] 프로젝트 기획 (PRD, 벤치마킹, UI/UX 설계)
+- [x] 개발 환경 설정 (Docker, Railway)
+- [x] 데이터베이스 설계 (PostgreSQL + SQLAlchemy)
+- [x] 사용자 인증 시스템 (JWT)
+- [x] PDF 파싱 엔진 (멀티 파서: pdfplumber → PyMuPDF → PyPDF2)
+- [x] AI 번역 엔진 (OpenAI GPT-4 / Anthropic Claude)
+- [x] Markdown 편집 인터페이스 (Monaco Editor, Split View)
+- [x] PDF 생성 엔진 (WeasyPrint)
+- [x] 프로젝트 대시보드 (업로드, 목록, 상태 추적)
+- [ ] 테스트 & 최적화
+- [ ] Railway 배포
+- [ ] 결제 시스템 (Phase 2)
+
+**전체 워크플로우:**
+1. PDF 업로드 → 2. 파싱 (PDF → Markdown) → 3. AI 번역 → 4. 편집 → 5. PDF 생성 & 다운로드
+
+상세 진행 상황: [docs/TASKS.md](./docs/TASKS.md)
 
 ## 🤝 기여
 
