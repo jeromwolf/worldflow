@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 
+from api.auth import router as auth_router
+
 # App initialization
 app = FastAPI(
     title="All-Rounder Translation API",
@@ -23,6 +25,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register API Routers
+app.include_router(auth_router)
 
 
 @app.get("/")
