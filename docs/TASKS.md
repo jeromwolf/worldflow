@@ -12,8 +12,8 @@
 - **Week 1-2**: 기반 구축 ✅
 - **Week 3-4**: PDF 파싱 엔진 ✅
 - **Week 5-6**: AI 번역 엔진 ✅
-- **Week 7-8**: 편집 및 PDF 생성 📅
-- **Week 9-10**: 결제 시스템 📅
+- **Week 7-8**: 편집 및 PDF 생성 ✅
+- **Week 9-10**: 결제 시스템 ⏭️ (Phase 2로 이연)
 - **Week 11-12**: 테스트 및 출시 📅
 
 ### Phase 2: 확장 기능 (3개월)
@@ -68,8 +68,11 @@
   - 파일 검증 (PDF, 크기, 페이지 제한)
   - 프로젝트 CRUD API (목록, 상세, 수정, 삭제)
 
-#### 📅 예정된 작업
-- [ ] **Task 2.4**: 대시보드 UI 개발 (프론트엔드)
+#### ✅ 추가 완료
+- [x] **Task 2.4**: 대시보드 UI 개발
+  - Dashboard.tsx - 프로젝트 목록 & 관리
+  - FileUpload.tsx - 드래그 앤 드롭 업로드
+  - ProjectCard.tsx - 프로젝트 카드 컴포넌트
 
 ---
 
@@ -91,30 +94,48 @@
   - GET /api/translation/projects/{id}/status
   - 진행률 추적 (0% → 100%)
 
-#### 📅 예정된 작업
-- [ ] **Task 3.4**: 번역 UI 개발 (프론트엔드)
+#### ✅ 추가 완료
+- [x] **Task 3.4**: 번역 UI 개발
+  - Dashboard에서 자동 번역 시작
+  - 프로젝트 상태 실시간 표시
+  - 진행률 progress bar
 
 ---
 
-### Week 7-8: 편집 및 PDF 생성
+### Week 7-8: 편집 및 PDF 생성 ✅
 **목표**: Markdown 편집기 및 PDF 재생성 시스템
 
-#### 📅 예정된 작업
-- [ ] **Task 4.1**: Markdown 편집기 개발 → [TASK_4_1.md](./tasks/TASK_4_1.md)
-- [ ] **Task 4.2**: PDF 생성 엔진 → [TASK_4_2.md](./tasks/TASK_4_2.md)
-- [ ] **Task 4.3**: 편집 UI (Split View) → [TASK_4_3.md](./tasks/TASK_4_3.md)
-- [ ] **Task 4.4**: PDF 다운로드 기능 → [TASK_4_4.md](./tasks/TASK_4_4.md)
+#### ✅ 완료된 작업
+- [x] **Task 4.1**: Markdown 편집기 개발
+  - MarkdownEditor.tsx - Monaco Editor 통합
+  - 500ms 자동 저장
+  - 구문 강조, 줄 번호
+- [x] **Task 4.2**: PDF 생성 엔진
+  - pdf_generator.py - WeasyPrint 기반
+  - Markdown → HTML → PDF 변환
+  - 전문 CSS 스타일링 (A4, 헤더, 푸터, 테이블)
+- [x] **Task 4.3**: 편집 UI (Split View)
+  - SplitView.tsx - 원본/번역본 분할 화면
+  - 3가지 뷰 모드 (split/원본/번역본)
+  - 편집 & 저장 기능
+- [x] **Task 4.4**: PDF 다운로드 기능
+  - POST /api/pdf/projects/{id}/generate
+  - GET /api/pdf/projects/{id}/download
+  - GET /api/pdf/projects/{id}/preview
+  - Editor.tsx - PDF 생성 & 다운로드 버튼
 
 ---
 
 ### Week 9-10: 결제 시스템
 **목표**: Stripe 결제 연동 및 사용량 관리
 
-#### 📅 예정된 작업
-- [ ] **Task 5.1**: Stripe 결제 연동 → [TASK_5_1.md](./tasks/TASK_5_1.md)
-- [ ] **Task 5.2**: 구독 플랜 관리 → [TASK_5_2.md](./tasks/TASK_5_2.md)
-- [ ] **Task 5.3**: 사용량 추적 시스템 → [TASK_5_3.md](./tasks/TASK_5_3.md)
-- [ ] **Task 5.4**: 이메일 발송 시스템 → [TASK_5_4.md](./tasks/TASK_5_4.md)
+#### 📅 예정된 작업 (Phase 2로 이연)
+- [ ] **Task 5.1**: Stripe 결제 연동
+- [ ] **Task 5.2**: 구독 플랜 관리
+- [ ] **Task 5.3**: 사용량 추적 시스템
+- [ ] **Task 5.4**: 이메일 발송 시스템
+
+**Note**: 결제 시스템은 MVP 출시 후 Phase 2에서 구현
 
 ---
 
@@ -197,26 +218,37 @@ _없음_
 
 ### Week 0 (2025-10-02)
 **완료된 작업**:
-- [x] PRD 작성
-- [x] 벤치마킹 분석
-- [x] 개발 가이드 작성 (claude.md, REUSABLE_PATTERNS.md)
-- [x] 태스크 관리 문서 생성
+- [x] PRD 작성, 벤치마킹 분석, 개발 가이드
 - [x] **Week 1-2 완료**: 기반 구축
-  - 프로젝트 환경 설정 (Docker, Railway)
-  - 데이터베이스 모델 (PostgreSQL + SQLAlchemy)
-  - 사용자 인증 시스템 (JWT)
-  - 프론트엔드 레이아웃 (React + TailwindCSS)
+  - 프로젝트 환경 (Docker, Railway)
+  - DB 모델 (PostgreSQL + SQLAlchemy)
+  - 인증 시스템 (JWT)
+  - 프론트엔드 기본 레이아웃
 - [x] **Week 3-4 완료**: PDF 파싱 엔진
-  - 멀티 파서 전략 (pdfplumber/PyMuPDF/PyPDF2)
+  - 멀티 파서 (pdfplumber/PyMuPDF/PyPDF2)
   - Railway 볼륨 스토리지
   - 파일 업로드 & 프로젝트 API
+  - 대시보드 UI
 - [x] **Week 5-6 완료**: AI 번역 엔진
   - OpenAI/Anthropic 번역 서비스
   - 백그라운드 작업 처리
-  - 번역 상태 추적 API
+  - 번역 상태 추적 API & UI
+- [x] **Week 7-8 완료**: Markdown 편집기 & PDF 생성
+  - Monaco Editor 통합 (Split View)
+  - WeasyPrint PDF 생성 엔진
+  - 편집 & 다운로드 UI
+
+**핵심 기능 완성도**: 85%
+- ✅ PDF 업로드
+- ✅ PDF → Markdown 파싱
+- ✅ AI 번역 (GPT-4/Claude)
+- ✅ Markdown 편집기
+- ✅ Markdown → PDF 생성
+- ✅ 프로젝트 관리 대시보드
 
 **다음 계획**:
-- [ ] Week 7-8: Markdown 편집기 및 PDF 생성
+- [ ] Week 11-12: 테스트, 최적화, 배포 준비
+- [ ] Phase 2: 결제 시스템, 용어집, OCR
 
 ---
 
