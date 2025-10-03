@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import FileUpload from '@/components/upload/FileUpload'
 import ProjectCard from '@/components/dashboard/ProjectCard'
 import { FiPlus, FiRefreshCw } from 'react-icons/fi'
 
 export default function Dashboard() {
-  const navigate = useNavigate()
   const [projects, setProjects] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showUpload, setShowUpload] = useState(false)

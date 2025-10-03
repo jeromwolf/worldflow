@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import SplitView from '@/components/editor/SplitView'
-import { FiDownload, FiFileText, FiAlertCircle, FiHome } from 'react-icons/fi'
+import { FiFileText, FiAlertCircle, FiHome } from 'react-icons/fi'
 
 export default function Editor() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -9,7 +9,6 @@ export default function Editor() {
 
   const [project, setProject] = useState<any>(null)
   const [translatedMarkdown, setTranslatedMarkdown] = useState('')
-  const [isSaving, setIsSaving] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState('')
 
@@ -32,33 +31,7 @@ export default function Editor() {
     }
   }
 
-  const handleSave = async () => {
-    if (!projectId) return
-
-    setIsSaving(true)
-    setError('')
-
-    try {
-      const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          markdown_translated: translatedMarkdown
-        })
-      })
-
-      if (!response.ok) throw new Error('Failed to save')
-
-      // Success feedback
-      alert('저장되었습니다!')
-    } catch (err) {
-      setError('저장에 실패했습니다.')
-    } finally {
-      setIsSaving(false)
-    }
-  }
+  // Auto-save functionality removed - using SplitView's built-in save
 
   const handleGeneratePDF = async () => {
     if (!projectId) return

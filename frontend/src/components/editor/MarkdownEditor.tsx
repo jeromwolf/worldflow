@@ -28,7 +28,7 @@ export default function MarkdownEditor({
     })
 
     // Auto-save on change (debounced)
-    let timeoutId: NodeJS.Timeout
+    let timeoutId: number
     editor.onDidChangeModelContent(() => {
       clearTimeout(timeoutId)
       timeoutId = setTimeout(() => {
