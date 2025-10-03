@@ -39,7 +39,7 @@ COPY backend /app/backend
 COPY storage /app/storage
 
 # Set environment
-ENV PYTHONPATH=/app/backend
+ENV PYTHONPATH=/app
 ENV PORT=8000
 
 # Expose port
