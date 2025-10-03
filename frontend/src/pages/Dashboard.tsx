@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import FileUpload from '@/components/upload/FileUpload'
 import ProjectCard from '@/components/dashboard/ProjectCard'
 import { FiPlus, FiRefreshCw } from 'react-icons/fi'
+import { config } from '@/config'
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<any[]>([])
@@ -16,7 +17,7 @@ export default function Dashboard() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:8000/api/projects/')
+      const response = await fetch(`${config.apiUrl}/api/projects/`)
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -43,7 +44,7 @@ export default function Dashboard() {
     formData.append('source_language', sourceLang)
     formData.append('target_language', targetLang)
 
-    const response = await fetch('http://localhost:8000/api/projects/upload', {
+    const response = await fetch(`${config.apiUrl}/api/projects/upload`, {
       method: 'POST',
       body: formData
     })
@@ -65,7 +66,7 @@ export default function Dashboard() {
 
   const startTranslation = async (projectId: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/translation/projects/${projectId}/translate`, {
+      const response = await fetch(`${config.apiUrl}/api/translation/projects/${projectId}/translate`, {
         method: 'POST'
       })
 
@@ -80,7 +81,7 @@ export default function Dashboard() {
 
   const handleDelete = async (projectId: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+      const response = await fetch(`${config.apiUrl}/api/projects/${projectId}`, {
         method: 'DELETE'
       })
 

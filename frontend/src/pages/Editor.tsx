@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import SplitView from '@/components/editor/SplitView'
 import { FiFileText, FiAlertCircle, FiHome } from 'react-icons/fi'
+import { config } from '@/config'
 
 export default function Editor() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -19,7 +20,7 @@ export default function Editor() {
 
   const fetchProject = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/projects/${projectId}`)
+      const response = await fetch(`${config.apiUrl}/api/projects/${projectId}`)
 
       if (!response.ok) throw new Error('Failed to fetch project')
 
@@ -41,7 +42,7 @@ export default function Editor() {
 
     try {
       // 1. Save markdown first
-      const saveResponse = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+      const saveResponse = await fetch(`${config.apiUrl}/api/projects/${projectId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json'
@@ -54,7 +55,7 @@ export default function Editor() {
       if (!saveResponse.ok) throw new Error('Failed to save before PDF generation')
 
       // 2. Generate PDF
-      const response = await fetch(`http://localhost:8000/api/pdf/projects/${projectId}/generate`, {
+      const response = await fetch(`${config.apiUrl}/api/pdf/projects/${projectId}/generate`, {
         method: 'POST'
       })
 
@@ -64,7 +65,7 @@ export default function Editor() {
       await fetchProject()
 
       // 4. Success - open download
-      window.open(`http://localhost:8000/api/pdf/projects/${projectId}/download`, '_blank')
+      window.open(`${config.apiUrl}/api/pdf/projects/${projectId}/download`, '_blank')
     } catch (err) {
       setError('PDF 생성에 실패했습니다.')
     } finally {
