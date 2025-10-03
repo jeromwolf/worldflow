@@ -17,9 +17,15 @@ print(f"[DEBUG] All env vars containing 'DATABASE': {[k for k in os.environ.keys
 if not settings.DATABASE_URL:
     raise ValueError("DATABASE_URL environment variable is required but not set!")
 
+# Convert postgresql:// to postgresql+asyncpg:// for async driver
+DATABASE_URL = settings.DATABASE_URL
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+    print(f"[DEBUG] Converted DATABASE_URL to: {DATABASE_URL}")
+
 # Create async engine
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    DATABASE_URL,
     echo=settings.DEBUG,
     pool_size=20,
     max_overflow=40,
