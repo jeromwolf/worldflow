@@ -41,7 +41,29 @@ COPY storage /app/storage
 # Set working directory to backend
 WORKDIR /app/backend
 
-# Set environment
+# Declare Railway build arguments (Railway automatically passes all variables as build args)
+ARG DATABASE_URL
+ARG REDIS_URL
+ARG SECRET_KEY
+ARG OPENAI_API_KEY
+ARG ANTHROPIC_API_KEY
+ARG AI_PROVIDER
+ARG DEBUG
+ARG LOG_LEVEL
+ARG ENVIRONMENT
+
+# Convert build args to runtime environment variables
+ENV DATABASE_URL=$DATABASE_URL
+ENV REDIS_URL=$REDIS_URL
+ENV SECRET_KEY=$SECRET_KEY
+ENV OPENAI_API_KEY=$OPENAI_API_KEY
+ENV ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+ENV AI_PROVIDER=${AI_PROVIDER:-openai}
+ENV DEBUG=${DEBUG:-false}
+ENV LOG_LEVEL=${LOG_LEVEL:-INFO}
+ENV ENVIRONMENT=${ENVIRONMENT:-production}
+
+# Set application environment
 ENV PYTHONPATH=/app/backend
 ENV PORT=8000
 
