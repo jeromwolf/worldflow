@@ -2,22 +2,23 @@
 Application Configuration - Environment Variables
 """
 from pydantic_settings import BaseSettings
+from pydantic import Field
 from typing import Optional
 
 
 class Settings(BaseSettings):
     """Application settings from environment variables"""
-    
+
     # Database
-    DATABASE_URL: str
-    
+    DATABASE_URL: str = Field(..., description="PostgreSQL database URL")
+
     # JWT
-    SECRET_KEY: str
+    SECRET_KEY: str = Field(..., description="Secret key for JWT tokens (min 32 characters)")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    
+
     # Redis
-    REDIS_URL: str
+    REDIS_URL: str = Field(..., description="Redis connection URL")
     
     # Storage (Railway Volume or AWS S3)
     AWS_ACCESS_KEY_ID: str = ""
