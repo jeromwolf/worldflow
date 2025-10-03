@@ -87,8 +87,6 @@ export default function Editor() {
 
       if (!response.ok) throw new Error('PDF generation failed')
 
-      const data = await response.json()
-
       // 3. Refresh project data to get new pdf_translated_url
       await fetchProject()
 
