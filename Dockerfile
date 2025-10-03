@@ -38,8 +38,11 @@ COPY --from=backend-builder /usr/local/bin /usr/local/bin
 COPY backend /app/backend
 COPY storage /app/storage
 
+# Set working directory to backend
+WORKDIR /app/backend
+
 # Set environment
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/backend
 ENV PORT=8000
 
 # Expose port
@@ -50,4 +53,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD python -c "import requests; requests.get('http://localhost:8000/api/health')"
 
 # Run application
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
