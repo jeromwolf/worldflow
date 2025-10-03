@@ -1,4 +1,4 @@
-# All-Rounder Translation
+# WorldFlow
 
 AI 기반 PDF 문서 번역 플랫폼 (한글 ↔ 영어)
 
@@ -47,7 +47,7 @@ AI 기반 PDF 문서 번역 플랫폼 (한글 ↔ 영어)
 ### 1. 저장소 클론
 \`\`\`bash
 git clone <repository-url>
-cd all-rounder-translation
+cd worldflow
 \`\`\`
 
 ### 2. 환경 변수 설정
@@ -102,7 +102,7 @@ npm run dev
 ## 📁 프로젝트 구조
 
 \`\`\`
-all-rounder-translation/
+worldflow/
 ├── backend/                 # FastAPI 백엔드
 │   ├── api/                # API 라우터
 │   ├── services/           # 비즈니스 로직
@@ -211,7 +211,7 @@ This project is licensed under the MIT License.
 
 ## 📞 문의
 
-- 이메일: contact@all-rounder-translation.com
+- 이메일: contact@worldflow.ai
 - 이슈: GitHub Issues
 
 ---

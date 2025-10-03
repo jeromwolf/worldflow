@@ -2,10 +2,10 @@
 Base Model and Mixins
 """
 from sqlalchemy import Column, DateTime
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 
-Base = declarative_base()
+# Import Base from core.database to ensure single source of truth
+from core.database import Base
 
 
 class TimestampMixin:

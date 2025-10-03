@@ -19,11 +19,11 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str
     
-    # AWS S3
-    AWS_ACCESS_KEY_ID: str
-    AWS_SECRET_ACCESS_KEY: str
+    # Storage (Railway Volume or AWS S3)
+    AWS_ACCESS_KEY_ID: str = ""
+    AWS_SECRET_ACCESS_KEY: str = ""
     AWS_REGION: str = "ap-northeast-2"
-    S3_BUCKET_NAME: str
+    S3_BUCKET_NAME: str = ""
     
     # AI APIs
     OPENAI_API_KEY: Optional[str] = None

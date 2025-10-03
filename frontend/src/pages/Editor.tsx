@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import SplitView from '@/components/editor/SplitView'
-import { FiDownload, FiFileText, FiAlertCircle } from 'react-icons/fi'
+import { FiDownload, FiFileText, FiAlertCircle, FiHome } from 'react-icons/fi'
 
 export default function Editor() {
   const { projectId } = useParams<{ projectId: string }>()
@@ -20,11 +20,7 @@ export default function Editor() {
 
   const fetchProject = async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
+      const response = await fetch(`http://localhost:8000/api/projects/${projectId}`)
 
       if (!response.ok) throw new Error('Failed to fetch project')
 
@@ -43,11 +39,10 @@ export default function Editor() {
     setError('')
 
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
+      const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           markdown_translated: translatedMarkdown
@@ -72,19 +67,33 @@ export default function Editor() {
     setError('')
 
     try {
-      const response = await fetch(`/api/pdf/projects/${projectId}/generate`, {
-        method: 'POST',
+      // 1. Save markdown first
+      const saveResponse = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+        method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          markdown_translated: translatedMarkdown
+        })
+      })
+
+      if (!saveResponse.ok) throw new Error('Failed to save before PDF generation')
+
+      // 2. Generate PDF
+      const response = await fetch(`http://localhost:8000/api/pdf/projects/${projectId}/generate`, {
+        method: 'POST'
       })
 
       if (!response.ok) throw new Error('PDF generation failed')
 
       const data = await response.json()
 
-      // Success - open download
-      window.open(`/api/pdf/projects/${projectId}/download`, '_blank')
+      // 3. Refresh project data to get new pdf_translated_url
+      await fetchProject()
+
+      // 4. Success - open download
+      window.open(`http://localhost:8000/api/pdf/projects/${projectId}/download`, '_blank')
     } catch (err) {
       setError('PDF 생성에 실패했습니다.')
     } finally {
@@ -108,13 +117,24 @@ export default function Editor() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {project.original_filename}
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              {project.source_language} → {project.target_language}
-            </p>
+          <div className="flex items-center space-x-4">
+            {/* Dashboard Button */}
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100"
+              title="프로젝트 목록"
+            >
+              <FiHome className="text-xl" />
+            </button>
+
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {project.original_filename}
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {project.source_language} → {project.target_language}
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -122,11 +142,11 @@ export default function Editor() {
             <button
               onClick={handleGeneratePDF}
               disabled={isGenerating || !translatedMarkdown}
-              className="btn-secondary"
+              className="btn-primary"
             >
               {isGenerating ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700 inline-block mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2"></div>
                   PDF 생성 중...
                 </>
               ) : (
@@ -136,18 +156,6 @@ export default function Editor() {
                 </>
               )}
             </button>
-
-            {/* Download PDF Button */}
-            {project.pdf_translated_url && (
-              <a
-                href={`/api/pdf/projects/${projectId}/download`}
-                download
-                className="btn-primary"
-              >
-                <FiDownload className="inline mr-2" />
-                PDF 다운로드
-              </a>
-            )}
           </div>
         </div>
 
@@ -166,8 +174,6 @@ export default function Editor() {
           originalMarkdown={project.markdown_original || ''}
           translatedMarkdown={translatedMarkdown}
           onTranslatedChange={setTranslatedMarkdown}
-          onSave={handleSave}
-          isSaving={isSaving}
         />
       </div>
     </div>

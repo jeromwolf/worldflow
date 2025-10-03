@@ -17,10 +17,10 @@ export default function Home() {
             PDF → Markdown → AI 번역 → 편집 → PDF 생성까지 한 번에.
           </p>
           <div className="flex justify-center space-x-4">
-            <Link to="/upload" className="btn-primary text-lg px-8 py-3">
+            <Link to="/dashboard" className="btn-primary text-lg px-8 py-3">
               지금 시작하기
             </Link>
-            <Link to="/demo" className="btn-secondary text-lg px-8 py-3">
+            <Link to="/dashboard" className="btn-secondary text-lg px-8 py-3">
               데모 보기
             </Link>
           </div>

@@ -93,7 +93,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
   return (
     <div className="card hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-4">
-        <div className="flex items-start space-x-3 flex-1">
+        <div className="flex items-start space-x-3 flex-1 min-w-0">
           <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
             <FiFile className="w-5 h-5 text-red-600" />
           </div>
@@ -109,8 +109,8 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center space-x-2">
+        {/* Actions - Always visible */}
+        <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
           {(project.status === 'completed' || project.status === 'translating') && (
             <button
               onClick={handleEdit}

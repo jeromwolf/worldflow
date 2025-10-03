@@ -18,18 +18,22 @@ export default function Dashboard() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/projects/', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      })
+      const response = await fetch('http://localhost:8000/api/projects/')
 
-      if (!response.ok) throw new Error('Failed to fetch projects')
+      if (!response.ok) {
+        if (response.status === 401) {
+          // 인증 필요 - 개발 중에는 빈 배열 반환
+          setProjects([])
+          return
+        }
+        throw new Error('Failed to fetch projects')
+      }
 
       const data = await response.json()
       setProjects(data.projects || [])
     } catch (err) {
       console.error('Failed to fetch projects:', err)
+      setProjects([])
     } finally {
       setIsLoading(false)
     }
@@ -41,11 +45,8 @@ export default function Dashboard() {
     formData.append('source_language', sourceLang)
     formData.append('target_language', targetLang)
 
-    const response = await fetch('/api/projects/upload', {
+    const response = await fetch('http://localhost:8000/api/projects/upload', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
       body: formData
     })
 
@@ -66,11 +67,8 @@ export default function Dashboard() {
 
   const startTranslation = async (projectId: string) => {
     try {
-      const response = await fetch(`/api/translation/projects/${projectId}/translate`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`http://localhost:8000/api/translation/projects/${projectId}/translate`, {
+        method: 'POST'
       })
 
       if (response.ok) {
@@ -84,11 +82,8 @@ export default function Dashboard() {
 
   const handleDelete = async (projectId: string) => {
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+        method: 'DELETE'
       })
 
       if (response.ok) {

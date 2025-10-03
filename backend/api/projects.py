@@ -12,6 +12,7 @@ from core.dependencies import get_current_active_user
 from core.config import settings
 from models.user import User
 from models.project import Project, ProjectStatus
+from models.project_image import ProjectImage
 from schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate, ProjectList
 from services.pdf_parser import pdf_parser
 from services.storage import storage_service
@@ -77,9 +78,9 @@ async def upload_pdf(
                 detail=f"PDF exceeds maximum page limit of {settings.MAX_PAGES} pages"
             )
 
-        # Convert to Markdown
+        # Convert to Markdown (exclude metadata for cleaner translation)
         logger.info(f"Converting {file.filename} to Markdown")
-        markdown_content = pdf_parser.to_markdown(pdf_document)
+        markdown_content = pdf_parser.to_markdown(pdf_document, include_metadata=False)
 
         # Create project record
         new_project = Project(
@@ -97,6 +98,65 @@ async def upload_pdf(
         db.add(new_project)
         await db.commit()
         await db.refresh(new_project)
+
+        # Save images to storage and database
+        total_images = 0
+        image_mapping = {}  # Map placeholder keys to storage paths
+
+        for page in pdf_document.pages:
+            for pdf_image in page.images:
+                try:
+                    # Generate image filename
+                    image_filename = f"page_{page.page_number}_img_{pdf_image.image_index}.{pdf_image.image_type.lower()}"
+
+                    # Upload image to storage
+                    image_path = storage_service.upload_file(
+                        file_content=pdf_image.image_bytes,
+                        filename=image_filename,
+                        content_type=f"image/{pdf_image.image_type.lower()}",
+                        folder=f"users/{current_user.id}/projects/{new_project.id}/images"
+                    )
+
+                    # Build mapping for placeholder replacement
+                    placeholder_key = f"page_{page.page_number}_img_{pdf_image.image_index}"
+                    image_mapping[placeholder_key] = image_path
+
+                    # Create ProjectImage record
+                    project_image = ProjectImage(
+                        project_id=new_project.id,
+                        page_number=page.page_number,
+                        image_index=pdf_image.image_index,
+                        storage_path=image_path,
+                        position_x=pdf_image.position_x,
+                        position_y=pdf_image.position_y,
+                        width=pdf_image.width,
+                        height=pdf_image.height,
+                        image_type=pdf_image.image_type,
+                        file_size=len(pdf_image.image_bytes)
+                    )
+
+                    db.add(project_image)
+                    total_images += 1
+
+                    logger.debug(f"Saved image: {image_filename} -> {image_path}")
+
+                except Exception as e:
+                    logger.error(f"Failed to save image {pdf_image.image_index} from page {page.page_number}: {e}")
+                    # Continue with other images even if one fails
+                    continue
+
+        if total_images > 0:
+            await db.commit()
+            logger.success(f"Saved {total_images} images for project {new_project.id}")
+
+            # Replace image placeholders with actual storage paths
+            if image_mapping:
+                new_project.markdown_original = pdf_parser.replace_image_placeholders(
+                    new_project.markdown_original,
+                    image_mapping
+                )
+                await db.commit()
+                logger.debug(f"Updated markdown with {len(image_mapping)} image paths")
 
         logger.success(f"Project created: {new_project.id} for user {current_user.id}")
         return new_project

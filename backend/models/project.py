@@ -71,6 +71,12 @@ class Project(Base, TimestampMixin):
         back_populates="project",
         cascade="all, delete-orphan"
     )
+    images = relationship(
+        "ProjectImage",
+        back_populates="project",
+        cascade="all, delete-orphan",
+        order_by="ProjectImage.page_number, ProjectImage.image_index"
+    )
     
     def __repr__(self):
         return f"<Project {self.original_filename} ({self.status})>"

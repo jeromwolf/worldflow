@@ -4,8 +4,10 @@ PDF API Routes - PDF generation and download
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from uuid import UUID
 from datetime import datetime
+from urllib.parse import quote
 
 from core.database import get_db
 from core.dependencies import get_current_active_user
@@ -33,9 +35,10 @@ async def generate_pdf(
     3. Upload PDF to storage
     4. Update project with PDF URL
     """
-    # Get project
+    # Get project with images (eager load for position info)
     result = await db.execute(
         select(Project)
+        .options(selectinload(Project.images))
         .where(Project.id == project_id)
         .where(Project.user_id == current_user.id)
         .where(Project.deleted_at.is_(None))
@@ -58,11 +61,17 @@ async def generate_pdf(
     try:
         logger.info(f"Generating PDF for project {project_id}")
 
-        # Generate PDF from translated Markdown
+        # Load project images with position info
+        # Note: project.images is already loaded via relationship
+        # with order_by="ProjectImage.page_number, ProjectImage.image_index"
+
+        # Generate PDF from translated Markdown (with embedded images and positions)
         pdf_bytes = pdf_generator.markdown_to_pdf(
             markdown_content=project.markdown_translated,
             title=project.original_filename.replace('.pdf', '_translated.pdf'),
-            language=project.target_language
+            language=project.target_language,
+            storage_service=storage_service,
+            project_images=project.images  # Pass image position info
         )
 
         # Upload PDF to storage
@@ -136,12 +145,16 @@ async def download_pdf(
         # Generate filename
         filename = project.original_filename.replace('.pdf', '_translated.pdf')
 
+        # Encode filename for HTTP header (RFC 2231)
+        # Support both ASCII and UTF-8 filenames for browser compatibility
+        encoded_filename = quote(filename.encode('utf-8'))
+
         # Return PDF with download headers
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
             headers={
-                "Content-Disposition": f'attachment; filename="{filename}"'
+                "Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"
             }
         )
 

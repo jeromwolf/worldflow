@@ -17,7 +17,7 @@
 
 ### 1. Git 저장소 설정
 - [ ] GitHub 저장소 생성
-  - 저장소명: `all-rounder-translation`
+  - 저장소명: `worldflow`
   - Private 저장소로 설정
 - [ ] README.md 작성
   - 프로젝트 소개

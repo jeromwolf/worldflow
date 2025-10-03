@@ -1,16 +1,16 @@
-version: '3.8'
+# Docker Compose configuration
 
 services:
   # PostgreSQL Database
   db:
     image: postgres:15-alpine
-    container_name: translation-db
+    container_name: worldflow-db
     environment:
       POSTGRES_DB: translation_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -22,9 +22,9 @@ services:
   # Redis Cache & Queue
   redis:
     image: redis:7-alpine
-    container_name: translation-redis
+    container_name: worldflow-redis
     ports:
-      - "6379:6379"
+      - "6381:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -38,12 +38,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: translation-backend
+    container_name: worldflow-backend
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/translation_db
       - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production-min-32-characters
       - DEBUG=true
     volumes:
       - ./backend:/app/backend
@@ -60,10 +63,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: translation-celery
+    container_name: worldflow-celery
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/translation_db
       - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production-min-32-characters
     volumes:
       - ./backend:/app/backend
       - ./storage:/app/storage
@@ -75,7 +81,7 @@ services:
   # React Frontend (개발용)
   frontend:
     image: node:18-alpine
-    container_name: translation-frontend
+    container_name: worldflow-frontend
     working_dir: /app
     ports:
       - "5173:5173"
@@ -92,4 +98,4 @@ volumes:
 
 networks:
   default:
-    name: translation-network
+    name: worldflow-network

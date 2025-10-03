@@ -5,19 +5,44 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
+from contextlib import asynccontextmanager
 
 from api.auth import router as auth_router
 from api.projects import router as projects_router
 from api.translation import router as translation_router
 from api.pdf import router as pdf_router
+from core.database import engine, Base
+# Import ALL models to ensure they're registered with Base.metadata
+from models import (
+    User, Project, ProjectImage, Glossary, UsageLog, Payment
+)
+from loguru import logger
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan - startup and shutdown"""
+    # Startup: Create database tables
+    logger.info("Creating database tables...")
+    logger.debug(f"Tables to create: {list(Base.metadata.tables.keys())}")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.success(f"Database tables created successfully: {list(Base.metadata.tables.keys())}")
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down...")
+
 
 # App initialization
 app = FastAPI(
-    title="All-Rounder Translation API",
+    title="WorldFlow API",
     description="AI-powered PDF translation service (Korean ↔ English)",
     version="0.1.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",
+    lifespan=lifespan,
 )
 
 # CORS Middleware
@@ -40,7 +65,7 @@ app.include_router(pdf_router)
 async def root():
     """Health check endpoint"""
     return {
-        "service": "All-Rounder Translation API",
+        "service": "WorldFlow API",
         "version": "0.1.0",
         "status": "healthy",
         "docs": "/api/docs"
