@@ -10,15 +10,15 @@ class Settings(BaseSettings):
     """Application settings from environment variables"""
 
     # Database
-    DATABASE_URL: str = Field(..., description="PostgreSQL database URL")
+    DATABASE_URL: Optional[str] = None
 
     # JWT
-    SECRET_KEY: str = Field(..., description="Secret key for JWT tokens (min 32 characters)")
+    SECRET_KEY: str = "temporary-secret-key-for-debugging-please-set-real-key-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     # Redis
-    REDIS_URL: str = Field(..., description="Redis connection URL")
+    REDIS_URL: Optional[str] = None
     
     # Storage (Railway Volume or AWS S3)
     AWS_ACCESS_KEY_ID: str = ""
@@ -56,11 +56,8 @@ class Settings(BaseSettings):
     MAX_PAGES: int = 200
     
     class Config:
-        env_file = ".env"
-        env_file_encoding = 'utf-8'
+        # .env file is optional - prioritize system environment variables
         case_sensitive = True
-        # Allow environment variables to override .env file
-        env_ignore_empty = True
         extra = "ignore"
         
     @property

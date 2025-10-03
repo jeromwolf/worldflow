@@ -7,9 +7,12 @@ from typing import AsyncGenerator
 
 from .config import settings
 
+# Database URL with fallback for debugging
+DATABASE_URL = settings.DATABASE_URL or "sqlite+aiosqlite:///./test.db"
+
 # Create async engine
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    DATABASE_URL,
     echo=settings.DEBUG,
     pool_size=20,
     max_overflow=40,
