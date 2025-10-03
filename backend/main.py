@@ -1,16 +1,6 @@
 """
 All-Rounder Translation - FastAPI Main Application
 """
-# DEBUG: Check environment variables at startup
-import os
-print("="*50)
-print("ENVIRONMENT VARIABLES CHECK:")
-print(f"DATABASE_URL: {'SET' if os.getenv('DATABASE_URL') else 'NOT SET'}")
-print(f"REDIS_URL: {'SET' if os.getenv('REDIS_URL') else 'NOT SET'}")
-print(f"OPENAI_API_KEY: {'SET' if os.getenv('OPENAI_API_KEY') else 'NOT SET'}")
-print(f"SECRET_KEY: {'SET' if os.getenv('SECRET_KEY') else 'NOT SET'}")
-print("="*50)
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse

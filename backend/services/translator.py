@@ -24,12 +24,6 @@ class TranslationService:
         self.provider = AIProvider(settings.AI_PROVIDER)
         self.mock_mode = False
 
-        # Debug: Print OPENAI_API_KEY
-        import os
-        logger.debug(f"[DEBUG] OPENAI_API_KEY from settings: {settings.OPENAI_API_KEY}")
-        logger.debug(f"[DEBUG] OPENAI_API_KEY from os.getenv: {os.getenv('OPENAI_API_KEY')}")
-        logger.debug(f"[DEBUG] All env vars containing 'OPENAI': {[k for k in os.environ.keys() if 'OPENAI' in k]}")
-
         if self.provider == AIProvider.OPENAI:
             if settings.OPENAI_API_KEY:
                 openai.api_key = settings.OPENAI_API_KEY
