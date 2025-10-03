@@ -16,6 +16,11 @@ COPY . .
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 
+# Debug: Print environment variable
+RUN echo "========================================" && \
+    echo "VITE_API_URL = $VITE_API_URL" && \
+    echo "========================================"
+
 # Build application
 RUN npm run build
 
