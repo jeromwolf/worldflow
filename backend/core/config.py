@@ -57,7 +57,11 @@ class Settings(BaseSettings):
     
     class Config:
         env_file = ".env"
+        env_file_encoding = 'utf-8'
         case_sensitive = True
+        # Allow environment variables to override .env file
+        env_ignore_empty = True
+        extra = "ignore"
         
     @property
     def allowed_origins_list(self) -> list[str]:
