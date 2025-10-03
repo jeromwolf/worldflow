@@ -6,12 +6,6 @@ from sqlalchemy.orm import declarative_base
 from typing import AsyncGenerator
 
 from .config import settings
-import os
-
-# Debug: Print environment variables
-print(f"[DEBUG] DATABASE_URL from settings: {settings.DATABASE_URL}")
-print(f"[DEBUG] DATABASE_URL from os.getenv: {os.getenv('DATABASE_URL')}")
-print(f"[DEBUG] All env vars containing 'DATABASE': {[k for k in os.environ.keys() if 'DATABASE' in k]}")
 
 # Database URL - must be provided via environment variable
 if not settings.DATABASE_URL:
@@ -21,7 +15,6 @@ if not settings.DATABASE_URL:
 DATABASE_URL = settings.DATABASE_URL
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
-    print(f"[DEBUG] Converted DATABASE_URL to: {DATABASE_URL}")
 
 # Create async engine
 engine = create_async_engine(
