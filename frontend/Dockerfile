@@ -9,12 +9,12 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy source code
-COPY . .
-
-# Build argument for API URL
+# Build argument for API URL (declare before COPY to bust cache)
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+
+# Copy source code
+COPY . .
 
 # Debug: Print environment variable
 RUN echo "========================================" && \
