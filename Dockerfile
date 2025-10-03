@@ -45,6 +45,11 @@ WORKDIR /app/backend
 ENV PYTHONPATH=/app/backend
 ENV PORT=8000
 
+# Test: Hardcode environment variables (TEMPORARY - remove after testing)
+ENV DATABASE_URL="postgresql://postgres:VFDzXwPpJVLIEfdvgBIztZYURhoomloz@postgres.railway.internal:5432/railway"
+ENV REDIS_URL="redis://default:lTCryFOVswtXsewdWgRyDTLoWkBLcKUc@redis.railway.internal:6379"
+ENV SECRET_KEY="test-secret-key-for-debugging-only-change-me"
+
 # Expose port
 EXPOSE 8000
 
